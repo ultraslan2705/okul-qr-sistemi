@@ -1,5 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
+import { randomUUID } from "crypto";
 
 type Settings = {
   schoolName: string;
@@ -45,7 +46,21 @@ export async function writeSettings(settings: Settings): Promise<void> {
 }
 
 export async function readTeachers(): Promise<Teacher[]> {
-  return readJsonFile<Teacher[]>(teachersPath, []);
+  const teachers = await readJsonFile<Teacher[]>(teachersPath, []);
+  let changed = false;
+  const normalized = teachers.map((teacher) => {
+    if (!teacher.id) {
+      changed = true;
+      return { ...teacher, id: randomUUID() };
+    }
+    return teacher;
+  });
+
+  if (changed) {
+    await writeJsonFile(teachersPath, normalized);
+  }
+
+  return normalized;
 }
 
 export async function writeTeachers(teachers: Teacher[]): Promise<void> {

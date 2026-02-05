@@ -8,21 +8,30 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+  const settingsStorageKey = "settings";
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
 
-    const response = await fetch("/api/settings");
-    const settings = await response.json();
+    try {
+      const rawSettings = localStorage.getItem(settingsStorageKey);
+      const settings = rawSettings
+        ? (JSON.parse(rawSettings) as { adminPassword?: string })
+        : { adminPassword: "0000" };
+      const adminPassword = settings.adminPassword ?? "0000";
 
-    if (password === settings.adminPassword) {
-      sessionStorage.setItem("adminAuthed", "true");
-      router.push("/admin/panel");
-      return;
+      if (password === adminPassword) {
+        sessionStorage.setItem("adminAuthed", "true");
+        router.push("/admin/panel");
+        return;
+      }
+
+      setError("Sifre hatali. Lutfen tekrar deneyin.");
+    } catch (error) {
+      console.error("ADMIN_LOGIN_SETTINGS_READ_FAILED", error);
+      setError("Sifre kontrol edilemedi.");
     }
-
-    setError("Sifre hatali. Lutfen tekrar deneyin.");
   }
 
   return (

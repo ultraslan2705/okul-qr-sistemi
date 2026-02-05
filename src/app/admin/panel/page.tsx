@@ -16,11 +16,13 @@ type Teacher = {
   email: string;
 };
 
+const settingsStorageKey = "settings";
+
 export default function AdminPanelPage() {
   const router = useRouter();
   const [settings, setSettings] = useState<Settings>({
-    schoolName: "",
-    adminPassword: ""
+    schoolName: "Ornek Okul",
+    adminPassword: "0000"
   });
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [newTeacher, setNewTeacher] = useState({ name: "", surname: "", email: "" });
@@ -32,61 +34,113 @@ export default function AdminPanelPage() {
       router.replace("/admin/login");
       return;
     }
-    void loadData();
-  }, [router]);
+    void loadTeachers();
 
-  async function loadData() {
-    const [settingsRes, teachersRes] = await Promise.all([
-      fetch("/api/settings"),
-      fetch("/api/teachers")
-    ]);
-    const settingsData = await settingsRes.json();
-    const teachersData = await teachersRes.json();
-    setSettings(settingsData);
-    setTeachers(teachersData);
+    try {
+      const rawSettings = localStorage.getItem(settingsStorageKey);
+      if (rawSettings) {
+        const parsedSettings = JSON.parse(rawSettings) as Settings;
+        if (parsedSettings?.schoolName && parsedSettings?.adminPassword) {
+          setSettings(parsedSettings);
+        }
+      }
+    } catch (error) {
+      console.error("LOCAL_STORAGE_SETTINGS_READ_FAILED", error);
+    }
+  }, []);
+
+  async function loadTeachers() {
+    try {
+      const response = await fetch("/api/teachers");
+      if (!response.ok) {
+        const body = await response.json().catch(() => null);
+        console.error("LOAD_TEACHERS_FAILED", { status: response.status, body });
+        setStatus("Ogretmenler yuklenemedi.");
+        setTeachers([]);
+        return;
+      }
+      const data = await response.json();
+      setTeachers(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("LOAD_TEACHERS_ERROR", error);
+      setStatus("Ogretmenler yuklenemedi.");
+      setTeachers([]);
+    }
   }
 
-  async function saveSettings(event: React.FormEvent<HTMLFormElement>) {
+  function handleSaveSettings(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatus("");
-    const response = await fetch("/api/settings", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(settings)
-    });
-    if (response.ok) {
-      setStatus("Ayarlar guncellendi.");
-    } else {
-      setStatus("Ayarlar guncellenemedi.");
+    try {
+      localStorage.setItem(settingsStorageKey, JSON.stringify(settings));
+      setStatus("Ayarlar kaydedildi.");
+    } catch (error) {
+      console.error("SETTINGS_SAVE_FAILED", error);
+      setStatus("Ayarlar kaydedilemedi.");
     }
   }
 
-  async function addTeacher(event: React.FormEvent<HTMLFormElement>) {
+  function handleAddTeacher(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    console.log("ADD_TEACHER_HANDLER_TRIGGERED", newTeacher);
     setStatus("");
-    const response = await fetch("/api/teachers", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newTeacher)
-    });
-    if (response.ok) {
-      setNewTeacher({ name: "", surname: "", email: "" });
-      await loadData();
-      setStatus("Ogretmen eklendi.");
-    } else {
-      setStatus("Ogretmen eklenemedi.");
+
+    const name = newTeacher.name.trim();
+    const surname = newTeacher.surname.trim();
+    const email = newTeacher.email.trim();
+
+    if (!name || !surname || !email) {
+      const error = new Error("Ad, soyad ve e-posta zorunludur.");
+      console.error("ADD_TEACHER_VALIDATION_FAILED", error);
+      setStatus(`Ogretmen eklenemedi: ${error.message}`);
+      return;
     }
+
+    void (async () => {
+      try {
+        const response = await fetch("/api/teachers", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, surname, email })
+        });
+        if (!response.ok) {
+          const body = await response.json().catch(() => null);
+          console.error("ADD_TEACHER_FAILED", { status: response.status, body });
+          setStatus("Ogretmen eklenemedi.");
+          return;
+        }
+        const createdTeacher = (await response.json()) as Teacher;
+        setTeachers((prev) => [...prev, createdTeacher]);
+        setNewTeacher({ name: "", surname: "", email: "" });
+        setStatus("Ogretmen eklendi.");
+      } catch (error) {
+        console.error("ADD_TEACHER_ERROR", error);
+        setStatus("Ogretmen eklenemedi.");
+      }
+    })();
   }
 
-  async function removeTeacher(id: string) {
+  function handleDeleteTeacher(id: string) {
+    console.log("DELETE_TEACHER_HANDLER_TRIGGERED", { id });
     setStatus("");
-    const response = await fetch(`/api/teachers?id=${id}`, { method: "DELETE" });
-    if (response.ok) {
-      await loadData();
-      setStatus("Ogretmen silindi.");
-    } else {
-      setStatus("Ogretmen silinemedi.");
-    }
+    void (async () => {
+      try {
+        const response = await fetch(`/api/teachers?id=${encodeURIComponent(id)}`, {
+          method: "DELETE"
+        });
+        if (!response.ok) {
+          const body = await response.json().catch(() => null);
+          console.error("DELETE_TEACHER_FAILED", { status: response.status, body });
+          setStatus("Ogretmen silinemedi.");
+          return;
+        }
+        setTeachers((prev) => prev.filter((teacher) => teacher.id !== id));
+        setStatus("Ogretmen silindi.");
+      } catch (error) {
+        console.error("DELETE_TEACHER_ERROR", error);
+        setStatus("Ogretmen silinemedi.");
+      }
+    })();
   }
 
   return (
@@ -109,7 +163,7 @@ export default function AdminPanelPage() {
       <div className="card">
         <h1>Admin Paneli</h1>
         <p className="small">Okul bilgilerini ve ogretmenleri buradan yonetebilirsiniz.</p>
-        <form onSubmit={saveSettings}>
+        <form onSubmit={handleSaveSettings}>
           <div className="field">
             <label>Okul Adi</label>
             <input
@@ -141,7 +195,7 @@ export default function AdminPanelPage() {
 
       <div className="card">
         <h2>Ogretmen Ekle</h2>
-        <form onSubmit={addTeacher}>
+        <form onSubmit={handleAddTeacher}>
           <div className="grid two">
             <div className="field">
               <label>Ad</label>
@@ -198,7 +252,7 @@ export default function AdminPanelPage() {
               <button
                 className="button danger"
                 type="button"
-                onClick={() => removeTeacher(teacher.id)}
+                onClick={() => handleDeleteTeacher(teacher.id)}
               >
                 Sil
               </button>

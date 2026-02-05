@@ -16,53 +16,39 @@ export default function FormPage() {
   const params = useParams();
   const id = String(params.id ?? "");
   const [teacher, setTeacher] = useState<Teacher | null>(null);
+  const [teacherName, setTeacherName] = useState("");
+  const [teacherEmail, setTeacherEmail] = useState("");
   const [studentName, setStudentName] = useState("");
-  const [message, setMessage] = useState("");
-  const [status, setStatus] = useState("");
+  const [comment, setComment] = useState("");
 
   useEffect(() => {
-    void fetch(`/api/teachers?id=${id}`)
+    fetch(`/api/teachers?id=${id}`)
       .then((res) => res.json())
-      .then((data) => setTeacher(data));
+      .then((data) => {
+        setTeacher(data);
+        setTeacherName(`${data.name} ${data.surname}`);
+        setTeacherEmail(data.email);
+      });
   }, [id]);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setStatus("");
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-    if (!teacher) {
-      setStatus("Ogretmen bilgisi bulunamadi.");
-      return;
-    }
+    await emailjs.send(
+      process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+      process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
+      {
+        teacherName,
+        teacherEmail,
+        studentName,
+        comment,
+        to_email: teacherEmail
+      },
+      process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
+    );
 
-    const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
-    const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
-    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
-
-    if (!serviceId || !templateId || !publicKey) {
-      setStatus("EmailJS bilgileri eksik. Lutfen .env.local dosyasini kontrol edin.");
-      return;
-    }
-
-    try {
-      await emailjs.send(
-        serviceId,
-        templateId,
-        {
-          to_email: teacher.email,
-          teacher_name: `${teacher.name} ${teacher.surname}`,
-          student_name: studentName,
-          message
-        },
-        publicKey
-      );
-      setStudentName("");
-      setMessage("");
-      setStatus("Mesaj gonderildi.");
-    } catch (error) {
-      setStatus("Mesaj gonderilemedi.");
-    }
-  }
+    alert("Mesaj gönderildi");
+  };
 
   return (
     <div className="grid">
@@ -71,40 +57,35 @@ export default function FormPage() {
           Ana Sayfa
         </Link>
       </div>
+
       <div className="card">
         <h1>Mesaj Formu</h1>
+
         {teacher ? (
           <p className="small">
-            {teacher.name} {teacher.surname} ogretmenine mesaj gonderiyorsunuz.
+            {teacherName} öğretmenine mesaj gönderiyorsunuz.
           </p>
         ) : (
-          <p className="small">Ogretmen yukleniyor...</p>
+          <p className="small">Öğretmen yükleniyor...</p>
         )}
+
         <form onSubmit={handleSubmit}>
-          <div className="field">
-            <label>Ogrenci Adi</label>
-            <input
-              className="input"
-              value={studentName}
-              onChange={(event) => setStudentName(event.target.value)}
-              required
-            />
-          </div>
-          <div className="field">
-            <label>Mesaj</label>
-            <textarea
-              className="input"
-              rows={5}
-              value={message}
-              onChange={(event) => setMessage(event.target.value)}
-              required
-            />
-          </div>
-          <button className="button" type="submit">
-            Mesaj Gonder
-          </button>
+          <input
+            value={studentName}
+            onChange={(e) => setStudentName(e.target.value)}
+            placeholder="Öğrenci adı"
+            required
+          />
+
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Mesaj"
+            required
+          />
+
+          <button type="submit">Mesaj Gönder</button>
         </form>
-        {status ? <p className="small">{status}</p> : null}
       </div>
     </div>
   );

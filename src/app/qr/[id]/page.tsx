@@ -16,44 +16,46 @@ export default function QrPage() {
   const params = useParams();
   const id = String(params.id ?? "");
   const [teacher, setTeacher] = useState<Teacher | null>(null);
-  const [origin, setOrigin] = useState("");
+
+  // 🔑 ASIL OLAY BURASI
+const baseUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  "https://okul-qr-projesi.vercel.app";
 
   useEffect(() => {
-    setOrigin(window.location.origin);
-    void fetch(`/api/teachers?id=${id}`)
+    fetch(`/api/teachers?id=${id}`)
       .then((res) => res.json())
-      .then((data) => setTeacher(data));
+      .then(setTeacher);
   }, [id]);
 
   const qrValue = useMemo(() => {
-    if (!origin) return "";
-    return `${origin}/form/${id}`;
-  }, [origin, id]);
+    return `${baseUrl}/form/${id}`;
+  }, [baseUrl, id]);
 
   return (
     <div className="grid">
       <div className="nav">
         <Link className="button secondary" href="/student">
-          Geri Don
+          Geri Dön
         </Link>
       </div>
+
       <div className="card">
         <h1>QR Kodu</h1>
+
         {teacher ? (
           <p className="small">
-            {teacher.name} {teacher.surname} icin QR kodu olusturuldu.
+            {teacher.name} {teacher.surname} için QR kodu oluşturuldu.
           </p>
         ) : (
-          <p className="small">Ogretmen yukleniyor...</p>
+          <p className="small">Öğretmen yükleniyor...</p>
         )}
-        {qrValue ? (
-          <div style={{ marginTop: 16 }}>
-            <QRCodeCanvas value={qrValue} size={220} />
-            <p className="small" style={{ marginTop: 12 }}>
-              QR kodunu okutunca mesaj formu acilir.
-            </p>
-          </div>
-        ) : null}
+
+        <QRCodeCanvas value={qrValue} size={220} />
+
+        <p className="small" style={{ marginTop: 12 }}>
+          QR kodunu okutunca mesaj formu açılır.
+        </p>
       </div>
     </div>
   );
