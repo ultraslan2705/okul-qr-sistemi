@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { readSettings, readTeachers } from "@/lib/data";
+import { getTeachers } from "@/lib/teachers";
+import { getSettings } from "@/lib/settings";
 
 export default async function StudentPage() {
-  const [settings, teachers] = await Promise.all([readSettings(), readTeachers()]);
+  const [settings, teachers] = await Promise.all([getSettings(), getTeachers()]);
 
   return (
     <div className="grid">

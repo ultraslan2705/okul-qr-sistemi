@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { readSettings } from "@/lib/data";
+import { getSettings } from "@/lib/settings";
 
 export default async function HomePage() {
-  const settings = await readSettings();
+  const settings = await getSettings();
 
   return (
     <div className="card">

@@ -3,22 +3,19 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { getSettings } from "@/lib/settings";
 
 export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
-  const settingsStorageKey = "settings";
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
 
     try {
-      const rawSettings = localStorage.getItem(settingsStorageKey);
-      const settings = rawSettings
-        ? (JSON.parse(rawSettings) as { adminPassword?: string })
-        : { adminPassword: "0000" };
+      const settings = await getSettings();
       const adminPassword = settings.adminPassword ?? "0000";
 
       if (password === adminPassword) {

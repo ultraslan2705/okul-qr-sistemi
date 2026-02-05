@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import emailjs from "@emailjs/browser";
+import { QRCodeCanvas } from "qrcode.react";
+import { supabase } from "@/lib/supabase";
 
 type Teacher = {
   id: string;
@@ -12,80 +13,57 @@ type Teacher = {
   email: string;
 };
 
-export default function FormPage() {
+export default function QrPage() {
   const params = useParams();
   const id = String(params.id ?? "");
   const [teacher, setTeacher] = useState<Teacher | null>(null);
-  const [teacherName, setTeacherName] = useState("");
-  const [teacherEmail, setTeacherEmail] = useState("");
-  const [studentName, setStudentName] = useState("");
-  const [comment, setComment] = useState("");
+
+  // 🔴 ASLA window.location kullanmıyoruz
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL!;
 
   useEffect(() => {
-    fetch(`/api/teachers?id=${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setTeacher(data);
-        setTeacherName(`${data.name} ${data.surname}`);
-        setTeacherEmail(data.email);
+    supabase
+      .from("teachers")
+      .select("*")
+      .eq("id", id)
+      .single()
+      .then(({ data, error }) => {
+        if (error) {
+          console.error(error);
+          return;
+        }
+        setTeacher(data as Teacher);
       });
   }, [id]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    await emailjs.send(
-      process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
-      process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
-      {
-        teacherName,
-        teacherEmail,
-        studentName,
-        comment,
-        to_email: teacherEmail
-      },
-      process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
-    );
-
-    alert("Mesaj gönderildi");
-  };
+  const qrValue = useMemo(() => {
+    return `${siteUrl}/form/${id}`;
+  }, [siteUrl, id]);
 
   return (
     <div className="grid">
       <div className="nav">
-        <Link className="button secondary" href="/">
-          Ana Sayfa
+        <Link className="button secondary" href="/student">
+          Geri Dön
         </Link>
       </div>
 
       <div className="card">
-        <h1>Mesaj Formu</h1>
+        <h1>QR Kodu</h1>
 
         {teacher ? (
           <p className="small">
-            {teacherName} öğretmenine mesaj gönderiyorsunuz.
+            {teacher.name} {teacher.surname} için QR kodu
           </p>
         ) : (
           <p className="small">Öğretmen yükleniyor...</p>
         )}
 
-        <form onSubmit={handleSubmit}>
-          <input
-            value={studentName}
-            onChange={(e) => setStudentName(e.target.value)}
-            placeholder="Öğrenci adı"
-            required
-          />
+        <QRCodeCanvas value={qrValue} size={220} />
 
-          <textarea
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            placeholder="Mesaj"
-            required
-          />
-
-          <button type="submit">Mesaj Gönder</button>
-        </form>
+        <p className="small" style={{ marginTop: 12 }}>
+          QR okutulduğunda mesaj formu açılır.
+        </p>
       </div>
     </div>
   );

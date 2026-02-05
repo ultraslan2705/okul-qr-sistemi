@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { QRCodeCanvas } from "qrcode.react";
+import { supabase } from "@/lib/supabase";
 
 type Teacher = {
   id: string;
@@ -17,15 +18,23 @@ export default function QrPage() {
   const id = String(params.id ?? "");
   const [teacher, setTeacher] = useState<Teacher | null>(null);
 
-  // 🔑 ASIL OLAY BURASI
-const baseUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  "https://okul-qr-projesi.vercel.app";
+  // 👇 TEK VE NET KAYNAK
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL!;
 
   useEffect(() => {
-    fetch(`/api/teachers?id=${id}`)
-      .then((res) => res.json())
-      .then(setTeacher);
+    void supabase
+      .from("teachers")
+      .select("*")
+      .eq("id", id)
+      .single()
+      .then(({ data, error }) => {
+        if (error) {
+          console.error(error);
+          setTeacher(null);
+          return;
+        }
+        setTeacher(data as Teacher);
+      });
   }, [id]);
 
   const qrValue = useMemo(() => {

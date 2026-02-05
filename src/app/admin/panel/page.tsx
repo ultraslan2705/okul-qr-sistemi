@@ -3,8 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
+import { getSettings, saveSettings } from "@/lib/settings";
 
 type Settings = {
+  id?: number;
   schoolName: string;
   adminPassword: string;
 };
@@ -15,8 +18,6 @@ type Teacher = {
   surname: string;
   email: string;
 };
-
-const settingsStorageKey = "settings";
 
 export default function AdminPanelPage() {
   const router = useRouter();
@@ -34,53 +35,43 @@ export default function AdminPanelPage() {
       router.replace("/admin/login");
       return;
     }
-    void loadTeachers();
+    void loadInitialData();
+  }, [router]);
 
+  async function loadInitialData() {
     try {
-      const rawSettings = localStorage.getItem(settingsStorageKey);
-      if (rawSettings) {
-        const parsedSettings = JSON.parse(rawSettings) as Settings;
-        if (parsedSettings?.schoolName && parsedSettings?.adminPassword) {
-          setSettings(parsedSettings);
-        }
-      }
-    } catch (error) {
-      console.error("LOCAL_STORAGE_SETTINGS_READ_FAILED", error);
-    }
-  }, []);
+      const [settingsData, teachersData] = await Promise.all([
+        getSettings(),
+        supabase.from("teachers").select("*").order("created_at", { ascending: false })
+      ]);
 
-  async function loadTeachers() {
-    try {
-      const response = await fetch("/api/teachers");
-      if (!response.ok) {
-        const body = await response.json().catch(() => null);
-        console.error("LOAD_TEACHERS_FAILED", { status: response.status, body });
-        setStatus("Ogretmenler yuklenemedi.");
+      setSettings(settingsData);
+
+      if (teachersData.error) {
+        console.error(teachersData.error);
         setTeachers([]);
         return;
       }
-      const data = await response.json();
-      setTeachers(Array.isArray(data) ? data : []);
+      setTeachers((teachersData.data ?? []) as Teacher[]);
     } catch (error) {
-      console.error("LOAD_TEACHERS_ERROR", error);
-      setStatus("Ogretmenler yuklenemedi.");
+      console.error(error);
       setTeachers([]);
     }
   }
 
-  function handleSaveSettings(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSaveSettings(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatus("");
-    try {
-      localStorage.setItem(settingsStorageKey, JSON.stringify(settings));
+
+    const result = await saveSettings(settings);
+    if (result.ok) {
       setStatus("Ayarlar kaydedildi.");
-    } catch (error) {
-      console.error("SETTINGS_SAVE_FAILED", error);
+    } else {
       setStatus("Ayarlar kaydedilemedi.");
     }
   }
 
-  function handleAddTeacher(event: React.FormEvent<HTMLFormElement>) {
+  async function handleAddTeacher(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     console.log("ADD_TEACHER_HANDLER_TRIGGERED", newTeacher);
     setStatus("");
@@ -96,51 +87,45 @@ export default function AdminPanelPage() {
       return;
     }
 
-    void (async () => {
-      try {
-        const response = await fetch("/api/teachers", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, surname, email })
-        });
-        if (!response.ok) {
-          const body = await response.json().catch(() => null);
-          console.error("ADD_TEACHER_FAILED", { status: response.status, body });
-          setStatus("Ogretmen eklenemedi.");
-          return;
-        }
-        const createdTeacher = (await response.json()) as Teacher;
-        setTeachers((prev) => [...prev, createdTeacher]);
-        setNewTeacher({ name: "", surname: "", email: "" });
-        setStatus("Ogretmen eklendi.");
-      } catch (error) {
-        console.error("ADD_TEACHER_ERROR", error);
-        setStatus("Ogretmen eklenemedi.");
-      }
-    })();
+    const { data, error } = await supabase
+      .from("teachers")
+      .insert({ name, surname, email })
+      .select("*")
+      .single();
+
+    if (error) {
+      console.error(error);
+      setStatus("Ogretmen eklenemedi.");
+      return;
+    }
+
+    setTeachers((prev) => [data as Teacher, ...prev]);
+    setNewTeacher({ name: "", surname: "", email: "" });
+    setStatus("Ogretmen eklendi.");
   }
 
-  function handleDeleteTeacher(id: string) {
+  async function handleDeleteTeacher(id: string) {
     console.log("DELETE_TEACHER_HANDLER_TRIGGERED", { id });
     setStatus("");
-    void (async () => {
-      try {
-        const response = await fetch(`/api/teachers?id=${encodeURIComponent(id)}`, {
-          method: "DELETE"
-        });
-        if (!response.ok) {
-          const body = await response.json().catch(() => null);
-          console.error("DELETE_TEACHER_FAILED", { status: response.status, body });
-          setStatus("Ogretmen silinemedi.");
-          return;
-        }
-        setTeachers((prev) => prev.filter((teacher) => teacher.id !== id));
-        setStatus("Ogretmen silindi.");
-      } catch (error) {
-        console.error("DELETE_TEACHER_ERROR", error);
-        setStatus("Ogretmen silinemedi.");
+
+    try {
+      const response = await fetch(`/api/teachers/${id}`, { method: "DELETE" });
+      if (!response.ok) {
+        const body = await response.json().catch(() => null);
+        console.error("DELETE_TEACHER_FAILED", { status: response.status, body });
+        const serverMessage =
+          body?.error || body?.details || body?.hint || "Ogretmen silinemedi.";
+        setStatus(`Ogretmen silinemedi: ${serverMessage}`);
+        return;
       }
-    })();
+      setTeachers((prev) => prev.filter((teacher) => teacher.id !== id));
+      setStatus("Ogretmen silindi.");
+    } catch (error) {
+      console.error("DELETE_TEACHER_ERROR", error);
+      setStatus(
+        `Ogretmen silinemedi: ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
   }
 
   return (
