@@ -72,13 +72,13 @@ export default function QrPage() {
 
   return (
     <div className="grid">
-      <div className="nav">
+      <div className="nav qr-nav">
         <Link className="button secondary" href="/student">
           Geri Dön
         </Link>
       </div>
 
-      <div className="card">
+      <div className="card qr-card">
         <h1>QR Kodu</h1>
 
         {teacher ? (
@@ -91,21 +91,25 @@ export default function QrPage() {
           <p className="small">Öğretmen yükleniyor...</p>
         )}
 
-        {qrValue ? <QRCodeCanvas value={qrValue} size={220} /> : null}
+        {qrValue ? (
+          <div className="qr-code">
+            <QRCodeCanvas value={qrValue} size={220} />
+          </div>
+        ) : null}
         {!qrValue ? <p className="small">QR kodu oluşturulamadı.</p> : null}
 
         {qrValue ? (
           <>
-            <div className="nav" style={{ marginTop: 12 }}>
+            <div className="qr-actions">
               <a className="button" href={qrValue} target="_blank" rel="noreferrer">
                 Formu Aç
               </a>
             </div>
-            <p className="small">{qrValue}</p>
+            <p className="small qr-link">{qrValue}</p>
           </>
         ) : null}
 
-        <p className="small" style={{ marginTop: 12 }}>
+        <p className="small qr-hint">
           QR kodunu okutunca mesaj formu açılır.
         </p>
       </div>

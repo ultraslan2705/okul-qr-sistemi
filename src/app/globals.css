@@ -273,6 +273,29 @@ textarea.input {
   color: var(--primary);
 }
 
+.qr-card {
+  text-align: center;
+}
+
+.qr-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.qr-code {
+  display: flex;
+  justify-content: center;
+}
+
+.qr-link {
+  word-break: break-all;
+}
+
+.qr-hint {
+  margin-top: 12px;
+}
+
 h1,
 h2,
 h3 {
@@ -350,6 +373,15 @@ h2 {
 
   .hero-actions .button {
     width: 100%;
+  }
+
+  .qr-nav {
+    justify-content: center;
+  }
+
+  .qr-link,
+  .qr-hint {
+    display: none;
   }
 }
 
