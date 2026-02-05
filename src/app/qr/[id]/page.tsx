@@ -48,7 +48,7 @@ export default function QrPage() {
         if (!response.ok) {
           const body = await response.json().catch(() => null);
           const message =
-            body?.error || body?.details || body?.hint || "Ogretmen bilgisi alinamadi.";
+            body?.error || body?.details || body?.hint || "Öğretmen bilgisi alınamadı.";
           throw new Error(message);
         }
         return response.json();
@@ -86,19 +86,19 @@ export default function QrPage() {
             {teacher.name} {teacher.surname} için QR kodu oluşturuldu.
           </p>
         ) : error ? (
-          <p className="small">Ogretmen getirilemedi: {error}</p>
+          <p className="small">Öğretmen getirilemedi: {error}</p>
         ) : (
           <p className="small">Öğretmen yükleniyor...</p>
         )}
 
         {qrValue ? <QRCodeCanvas value={qrValue} size={220} /> : null}
-        {!qrValue ? <p className="small">QR kodu olusturulamadi.</p> : null}
+        {!qrValue ? <p className="small">QR kodu oluşturulamadı.</p> : null}
 
         {qrValue ? (
           <>
             <div className="nav" style={{ marginTop: 12 }}>
               <a className="button" href={qrValue} target="_blank" rel="noreferrer">
-                Formu Ac
+                Formu Aç
               </a>
             </div>
             <p className="small">{qrValue}</p>

@@ -22,7 +22,7 @@ type Teacher = {
 export default function AdminPanelPage() {
   const router = useRouter();
   const [settings, setSettings] = useState<Settings>({
-    schoolName: "Ornek Okul",
+    schoolName: "Örnek Okul",
     adminPassword: "0000"
   });
   const [teachers, setTeachers] = useState<Teacher[]>([]);
@@ -83,7 +83,7 @@ export default function AdminPanelPage() {
     if (!name || !surname || !email) {
       const error = new Error("Ad, soyad ve e-posta zorunludur.");
       console.error("ADD_TEACHER_VALIDATION_FAILED", error);
-      setStatus(`Ogretmen eklenemedi: ${error.message}`);
+      setStatus(`Öğretmen eklenemedi: ${error.message}`);
       return;
     }
 
@@ -95,13 +95,13 @@ export default function AdminPanelPage() {
 
     if (error) {
       console.error(error);
-      setStatus("Ogretmen eklenemedi.");
+      setStatus("Öğretmen eklenemedi.");
       return;
     }
 
     setTeachers((prev) => [data as Teacher, ...prev]);
     setNewTeacher({ name: "", surname: "", email: "" });
-    setStatus("Ogretmen eklendi.");
+    setStatus("Öğretmen eklendi.");
   }
 
   async function handleDeleteTeacher(id: string) {
@@ -116,16 +116,16 @@ export default function AdminPanelPage() {
         const body = await response.json().catch(() => null);
         console.error("DELETE_TEACHER_FAILED", { status: response.status, body });
         const serverMessage =
-          body?.error || body?.details || body?.hint || "Ogretmen silinemedi.";
-        setStatus(`Ogretmen silinemedi: ${serverMessage}`);
+          body?.error || body?.details || body?.hint || "Öğretmen silinemedi.";
+        setStatus(`Öğretmen silinemedi: ${serverMessage}`);
         return;
       }
       setTeachers((prev) => prev.filter((teacher) => teacher.id !== id));
-      setStatus("Ogretmen silindi.");
+      setStatus("Öğretmen silindi.");
     } catch (error) {
       console.error("DELETE_TEACHER_ERROR", error);
       setStatus(
-        `Ogretmen silinemedi: ${error instanceof Error ? error.message : String(error)}`
+        `Öğretmen silinemedi: ${error instanceof Error ? error.message : String(error)}`
       );
     }
   }
@@ -143,16 +143,18 @@ export default function AdminPanelPage() {
             router.push("/admin/login");
           }}
         >
-          Cikis Yap
+          Çıkış Yap
         </button>
       </div>
 
       <div className="card">
         <h1>Admin Paneli</h1>
-        <p className="small">Okul bilgilerini ve ogretmenleri buradan yonetebilirsiniz.</p>
+        <p className="small">
+          Okul bilgilerini ve öğretmenleri buradan yönetebilirsiniz.
+        </p>
         <form onSubmit={handleSaveSettings}>
           <div className="field">
-            <label>Okul Adi</label>
+            <label>Okul Adı</label>
             <input
               className="input"
               value={settings.schoolName}
@@ -163,7 +165,7 @@ export default function AdminPanelPage() {
             />
           </div>
           <div className="field">
-            <label>Admin Sifre</label>
+            <label>Admin Şifresi</label>
             <input
               className="input"
               type="password"
@@ -175,13 +177,13 @@ export default function AdminPanelPage() {
             />
           </div>
           <button className="button" type="submit">
-            Ayarlari Kaydet
+            Ayarları Kaydet
           </button>
         </form>
       </div>
 
       <div className="card">
-        <h2>Ogretmen Ekle</h2>
+        <h2>Öğretmen Ekle</h2>
         <form onSubmit={handleAddTeacher}>
           <div className="grid two">
             <div className="field">
@@ -220,13 +222,13 @@ export default function AdminPanelPage() {
             />
           </div>
           <button className="button" type="submit">
-            Ogretmen Ekle
+            Öğretmen Ekle
           </button>
         </form>
       </div>
 
       <div className="card">
-        <h2>Ogretmen Listesi</h2>
+        <h2>Öğretmen Listesi</h2>
         <div className="list">
           {teachers.map((teacher) => (
             <div key={teacher.id} className="teacher-item">
@@ -245,7 +247,7 @@ export default function AdminPanelPage() {
               </button>
             </div>
           ))}
-          {teachers.length === 0 ? <p className="small">Henuz ogretmen yok.</p> : null}
+          {teachers.length === 0 ? <p className="small">Henüz öğretmen yok.</p> : null}
         </div>
         {status ? <p className="small">{status}</p> : null}
       </div>

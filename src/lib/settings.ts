@@ -7,7 +7,7 @@ type Settings = {
 };
 
 const defaultSettings: Settings = {
-  schoolName: "Ornek Okul",
+  schoolName: "Örnek Okul",
   adminPassword: "0000"
 };
 

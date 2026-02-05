@@ -18,7 +18,7 @@ export default async function StudentPage() {
         <h1 className="school-title">
           {settings.schoolName.toLocaleUpperCase("tr-TR")}
         </h1>
-        <p className="small">Mesaj gondermek istediginiz ogretmeni secin.</p>
+        <p className="small">Mesaj göndermek istediğiniz öğretmeni seçin.</p>
         <div className="list">
           {teachers.map((teacher) => (
             <Link key={teacher.id} href={`/qr/${teacher.id}`} className="teacher-item">
@@ -28,10 +28,10 @@ export default async function StudentPage() {
                 </strong>
                 <div className="small">{teacher.email}</div>
               </div>
-              <span className="badge">QR Olustur</span>
+              <span className="badge">QR Oluştur</span>
             </Link>
           ))}
-          {teachers.length === 0 ? <p className="small">Henuz ogretmen yok.</p> : null}
+          {teachers.length === 0 ? <p className="small">Henüz öğretmen yok.</p> : null}
         </div>
       </div>
     </div>

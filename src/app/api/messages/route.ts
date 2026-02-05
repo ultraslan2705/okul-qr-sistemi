@@ -72,11 +72,11 @@ export async function POST(request: Request) {
 
   const subject = `Mesaj - ${teacher.name} ${teacher.surname}`;
   const text = [
-    `Ogretmen: ${teacher.name} ${teacher.surname}`,
-    `Ogretmen e-posta: ${teacher.email}`,
+    `Öğretmen: ${teacher.name} ${teacher.surname}`,
+    `Öğretmen e-posta: ${teacher.email}`,
     "",
-    `Ogrenci ad soyad: ${studentName}`,
-    `Sinif: ${studentClass || "-"}`,
+    `Öğrenci ad soyad: ${studentName}`,
+    `Sınıf: ${studentClass || "-"}`,
     `Telefon: ${studentPhone || "-"}`,
     "",
     "Mesaj:",

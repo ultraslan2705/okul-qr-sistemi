@@ -12,39 +12,39 @@ export default async function HomePage() {
           {settings.schoolName.toLocaleUpperCase("tr-TR")}
         </h1>
         <p className="small hero-lead">
-          Ogretmen secimi yapin, QR kodu okutun ve mesajinizi kolayca iletin.
+          İstediğiniz rehber öğretmeni seçin, QR kodu okutup mesajınızı iletin.
         </p>
       </div>
 
       <div className="hero-steps">
-        <h2 className="steps-title">Programin Kullanimi</h2>
+        <h2 className="steps-title">Programın Kullanımı</h2>
         <div className="steps-grid">
           <div className="step-card">
-            <strong>1. Ogretmen Sec</strong>
-            <p className="small">Listeden ogretmeni secin.</p>
+            <strong>1. Öğretmen Seç</strong>
+            <p className="small">Listeden öğretmeni seçin.</p>
           </div>
           <div className="step-card">
             <strong>2. QR Okut</strong>
             <p className="small">QR kodu telefonla okutun.</p>
           </div>
           <div className="step-card">
-            <strong>3. Mesaj Gonder</strong>
+            <strong>3. Mesaj Gönder</strong>
             <p className="small">Formu doldurup iletin.</p>
           </div>
         </div>
       </div>
 
       <div className="card hero-panel">
-        <h2>Giris</h2>
+        <h2>Giriş</h2>
         <p className="small">
-          Ogrenciler icin hizli giris, yoneticiler icin ayar paneli.
+          Öğrenciler için hızlı giriş, yöneticiler için ayar paneli.
         </p>
         <div className="hero-actions">
           <Link className="button" href="/student">
-            Student Login
+            Öğrenci Girişi
           </Link>
           <Link className="admin-link" href="/admin/login">
-            Admin Login
+            Yönetici Girişi
           </Link>
         </div>
       </div>

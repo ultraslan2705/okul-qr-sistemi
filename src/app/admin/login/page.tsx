@@ -24,10 +24,10 @@ export default function AdminLoginPage() {
         return;
       }
 
-      setError("Sifre hatali. Lutfen tekrar deneyin.");
+      setError("Şifre hatalı. Lütfen tekrar deneyin.");
     } catch (error) {
       console.error("ADMIN_LOGIN_SETTINGS_READ_FAILED", error);
-      setError("Sifre kontrol edilemedi.");
+      setError("Şifre kontrol edilemedi.");
     }
   }
 
@@ -38,11 +38,11 @@ export default function AdminLoginPage() {
           Ana Sayfa
         </Link>
       </div>
-      <h1>Admin Girisi</h1>
-      <p className="small">Varsayilan sifre: 0000</p>
+      <h1>Admin Girişi</h1>
+      <p className="small">Varsayılan şifre: 0000</p>
       <form onSubmit={handleSubmit}>
         <div className="field">
-          <label>Admin Sifre</label>
+          <label>Admin Şifre</label>
           <input
             className="input"
             type="password"
@@ -53,7 +53,7 @@ export default function AdminLoginPage() {
         </div>
         {error ? <p className="small" style={{ color: "#d92d20" }}>{error}</p> : null}
         <button className="button" type="submit">
-          Giris Yap
+          Giriş Yap
         </button>
       </form>
     </div>

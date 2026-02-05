@@ -44,7 +44,7 @@ export default function FormPage() {
         if (!response.ok) {
           const body = await response.json().catch(() => null);
           const message =
-            body?.error || body?.details || body?.hint || "Ogretmen bilgisi alinamadi.";
+            body?.error || body?.details || body?.hint || "Öğretmen bilgisi alınamadı.";
           throw new Error(message);
         }
         return response.json();
@@ -64,7 +64,7 @@ export default function FormPage() {
     setStatus("");
 
     if (!teacher) {
-      setStatus("Ogretmen bilgisi yuklenemedi.");
+      setStatus("Öğretmen bilgisi yüklenemedi.");
       return;
     }
     if (!form.studentName.trim() || !form.message.trim()) {
@@ -89,15 +89,15 @@ export default function FormPage() {
       if (!response.ok) {
         const body = await response.json().catch(() => null);
         const message =
-          body?.error || body?.details || body?.hint || "Mesaj gonderilemedi.";
+          body?.error || body?.details || body?.hint || "Mesaj gönderilemedi.";
         throw new Error(message);
       }
 
       setForm(initialForm);
-      setStatus("Mesaj gonderildi.");
+      setStatus("Mesaj gönderildi.");
     } catch (err) {
       console.error(err);
-      setStatus(err instanceof Error ? err.message : "Mesaj gonderilemedi.");
+      setStatus(err instanceof Error ? err.message : "Mesaj gönderilemedi.");
     } finally {
       setSending(false);
     }
@@ -107,7 +107,7 @@ export default function FormPage() {
     <div className="grid">
       <div className="nav">
         <Link className="button secondary" href="/student">
-          Geri Don
+          Geri Dön
         </Link>
       </div>
 
@@ -115,12 +115,12 @@ export default function FormPage() {
         <h1>Mesaj Formu</h1>
         {teacher ? (
           <p className="small">
-            {teacher.name} {teacher.surname} ({teacher.email}) icin mesaj gonderin.
+            {teacher.name} {teacher.surname} ({teacher.email}) için mesaj gönderin.
           </p>
         ) : error ? (
-          <p className="small">Ogretmen getirilemedi: {error}</p>
+          <p className="small">Öğretmen getirilemedi: {error}</p>
         ) : (
-          <p className="small">Ogretmen yukleniyor...</p>
+          <p className="small">Öğretmen yükleniyor...</p>
         )}
 
         <form onSubmit={handleSubmit}>
@@ -136,18 +136,18 @@ export default function FormPage() {
             />
           </div>
           <div className="field">
-            <label>Sinif</label>
+            <label>Sınıf</label>
             <input
               className="input"
               value={form.studentClass}
               onChange={(event) =>
                 setForm((prev) => ({ ...prev, studentClass: event.target.value }))
               }
-              placeholder="Orn: 10-A"
+              placeholder="Örn: 10-A"
             />
           </div>
           <div className="field">
-            <label>Telefon (istege bagli)</label>
+            <label>Telefon (isteğe bağlı)</label>
             <input
               className="input"
               value={form.studentPhone}
@@ -170,7 +170,7 @@ export default function FormPage() {
             />
           </div>
           <button className="button" type="submit" disabled={sending}>
-            {sending ? "Gonderiliyor..." : "Gonder"}
+            {sending ? "Gönderiliyor..." : "Gönder"}
           </button>
         </form>
 

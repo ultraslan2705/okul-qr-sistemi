@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 export const metadata = {
   title: "Okul QR Sistemi",
-  description: "Okul QR mesajlasma uygulamasi"
+  description: "Okul QR mesajlaşma uygulaması"
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
