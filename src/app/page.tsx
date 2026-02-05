@@ -3,14 +3,15 @@ import { getSettings } from "@/lib/settings";
 
 export default async function HomePage() {
   const settings = await getSettings();
+  const schoolTitle = settings.schoolName
+    .normalize("NFC")
+    .toLocaleUpperCase("tr-TR");
 
   return (
     <div className="hero">
       <div className="hero-content">
         <span className="badge">Okul QR Sistemi</span>
-        <h1 className="school-title">
-          {settings.schoolName.toLocaleUpperCase("tr-TR")}
-        </h1>
+        <h1 className="school-title">{schoolTitle}</h1>
         <p className="small hero-lead">
           İstediğiniz rehber öğretmeni seçin, QR kodu okutup mesajınızı iletin.
         </p>

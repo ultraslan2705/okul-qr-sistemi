@@ -6,6 +6,9 @@ export const dynamic = "force-dynamic";
 
 export default async function StudentPage() {
   const [settings, teachers] = await Promise.all([getSettings(), getTeachers()]);
+  const schoolTitle = settings.schoolName
+    .normalize("NFC")
+    .toLocaleUpperCase("tr-TR");
 
   return (
     <div className="grid">
@@ -15,9 +18,7 @@ export default async function StudentPage() {
         </Link>
       </div>
       <div className="card">
-        <h1 className="school-title">
-          {settings.schoolName.toLocaleUpperCase("tr-TR")}
-        </h1>
+        <h1 className="school-title">{schoolTitle}</h1>
         <p className="small">Mesaj göndermek istediğiniz öğretmeni seçin.</p>
         <div className="list">
           {teachers.map((teacher) => (

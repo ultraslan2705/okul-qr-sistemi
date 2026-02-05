@@ -174,6 +174,7 @@ textarea.input {
 .badge {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   padding: 4px 10px;
   border-radius: 999px;
   background: var(--primary-soft);
@@ -205,6 +206,7 @@ textarea.input {
 
 .hero-content .badge {
   margin: 0 auto;
+  align-self: center;
 }
 
 .hero-lead {
@@ -216,10 +218,13 @@ textarea.input {
   display: grid;
   gap: 12px;
   text-align: center;
+  align-items: center;
 }
 
 .steps-title {
   margin-bottom: 4px;
+  text-align: center;
+  width: 100%;
 }
 
 .steps-grid {
@@ -247,11 +252,14 @@ textarea.input {
   max-width: 420px;
   width: 100%;
   margin: 0 auto;
+  text-align: center;
+  justify-items: center;
 }
 
 .hero-actions {
   display: grid;
   gap: 10px;
+  justify-items: center;
 }
 
 .admin-link {
@@ -347,8 +355,7 @@ h2 {
 
 .school-title {
   text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   font-size: 44px;
 }
 
