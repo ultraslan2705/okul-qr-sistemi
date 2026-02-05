@@ -14,7 +14,11 @@ export default async function HomePage() {
         <p className="small hero-lead">
           Ogretmen secimi yapin, QR kodu okutun ve mesajinizi kolayca iletin.
         </p>
-        <div className="hero-steps">
+      </div>
+
+      <div className="hero-steps">
+        <h2 className="steps-title">Programin Kullanimi</h2>
+        <div className="steps-grid">
           <div className="step-card">
             <strong>1. Ogretmen Sec</strong>
             <p className="small">Listeden ogretmeni secin.</p>
