@@ -203,6 +203,10 @@ textarea.input {
   text-align: center;
 }
 
+.hero-content .badge {
+  margin: 0 auto;
+}
+
 .hero-lead {
   max-width: 560px;
   margin: 0 auto;
@@ -313,7 +317,7 @@ h2 {
   }
 
   .hero-content {
-    text-align: left;
+    text-align: center;
   }
 
   .hero-lead {
@@ -322,6 +326,22 @@ h2 {
 
   .hero-steps {
     text-align: left;
+  }
+
+  .steps-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .step-card {
+    padding: 16px;
+  }
+
+  .hero-panel {
+    max-width: 100%;
+  }
+
+  .hero-actions .button {
+    width: 100%;
   }
 }
 
