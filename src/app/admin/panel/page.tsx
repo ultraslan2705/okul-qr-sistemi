@@ -19,15 +19,18 @@ type Teacher = {
   email: string;
 };
 
+const defaultSettings: Settings = {
+  schoolName: "Örnek Okul",
+  adminPassword: "0000"
+};
+
 export default function AdminPanelPage() {
   const router = useRouter();
-  const [settings, setSettings] = useState<Settings>({
-    schoolName: "Örnek Okul",
-    adminPassword: "0000"
-  });
+  const [settings, setSettings] = useState<Settings>(defaultSettings);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [newTeacher, setNewTeacher] = useState({ name: "", surname: "", email: "" });
   const [status, setStatus] = useState("");
+  const [resetting, setResetting] = useState(false);
 
   useEffect(() => {
     const authed = sessionStorage.getItem("adminAuthed") === "true";
@@ -127,6 +130,38 @@ export default function AdminPanelPage() {
       setStatus(
         `Öğretmen silinemedi: ${error instanceof Error ? error.message : String(error)}`
       );
+    }
+  }
+
+  async function handleResetAll() {
+    const confirmed = window.confirm(
+      "Tüm öğretmenler ve okul ayarları silinecek. Emin misiniz?"
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    setStatus("");
+    setResetting(true);
+    try {
+      const response = await fetch("/api/reset", { method: "POST" });
+      if (!response.ok) {
+        const body = await response.json().catch(() => null);
+        const message = body?.error || body?.details || "Sistem sıfırlanamadı.";
+        setStatus(message);
+        return;
+      }
+
+      setTeachers([]);
+      setSettings(defaultSettings);
+      setStatus("Sistem sıfırlandı.");
+    } catch (error) {
+      console.error("RESET_SYSTEM_ERROR", error);
+      setStatus(
+        `Sistem sıfırlanamadı: ${error instanceof Error ? error.message : String(error)}`
+      );
+    } finally {
+      setResetting(false);
     }
   }
 
@@ -250,6 +285,16 @@ export default function AdminPanelPage() {
           {teachers.length === 0 ? <p className="small">Henüz öğretmen yok.</p> : null}
         </div>
         {status ? <p className="small">{status}</p> : null}
+      </div>
+
+      <div className="card">
+        <h2>Sistemi Sıfırla</h2>
+        <p className="small">
+          Tüm öğretmenleri siler ve okul ayarlarını varsayılana döndürür.
+        </p>
+        <button className="button danger" type="button" onClick={handleResetAll}>
+          {resetting ? "Sıfırlanıyor..." : "Tüm Veriyi Sil"}
+        </button>
       </div>
     </div>
   );
