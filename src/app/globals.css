@@ -400,8 +400,16 @@ h2 {
   .hero-actions .button {
     width: 100%;
     max-width: 100%;
-    font-size: 17px;
-    padding: 16px 20px;
+    font-size: 18px;
+    padding: 18px 22px;
+  }
+
+  .hero-panel h2 {
+    margin-bottom: 6px;
+  }
+
+  .hero-panel .small {
+    margin-top: 0;
   }
 
   .steps-title {
