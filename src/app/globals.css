@@ -4,7 +4,7 @@
   color-scheme: light;
   --bg: #f6f7fb;
   --bg-accent: #e9f0ff;
-  --bg-warm: #fff3df;
+  --bg-warm: #f4f7ff;
   --card: #ffffff;
   --text: #0f172a;
   --muted: #5b677a;
@@ -256,7 +256,7 @@ textarea.input {
 .hero-panel {
   display: grid;
   gap: 12px;
-  max-width: 560px;
+  max-width: 680px;
   width: 100%;
   margin: 0 auto;
   text-align: center;
@@ -272,7 +272,7 @@ textarea.input {
 
 .hero-actions .button {
   width: 100%;
-  max-width: 420px;
+  max-width: 520px;
   padding: 16px 22px;
   font-size: 17px;
 }
