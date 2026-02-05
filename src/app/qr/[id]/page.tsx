@@ -20,11 +20,19 @@ export default function QrPage() {
   const [baseUrl, setBaseUrl] = useState("");
 
   useEffect(() => {
-    const envUrl = process.env.NEXT_PUBLIC_SITE_URL;
-    if (envUrl && envUrl.trim().length > 0) {
-      setBaseUrl(envUrl);
+    const envUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+    const isValidEnvUrl =
+      envUrl &&
+      envUrl.length > 0 &&
+      envUrl.toLowerCase() !== "undefined" &&
+      envUrl.toLowerCase() !== "null" &&
+      envUrl.startsWith("http");
+
+    if (isValidEnvUrl) {
+      setBaseUrl(envUrl.replace(/\/+$/, ""));
       return;
     }
+
     if (typeof window !== "undefined") {
       setBaseUrl(window.location.origin);
     }
