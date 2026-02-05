@@ -29,7 +29,9 @@ export default function AdminPanelPage() {
   const [settings, setSettings] = useState<Settings>(defaultSettings);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [newTeacher, setNewTeacher] = useState({ name: "", surname: "", email: "" });
-  const [status, setStatus] = useState("");
+  const [settingsStatus, setSettingsStatus] = useState("");
+  const [teacherStatus, setTeacherStatus] = useState("");
+  const [resetStatus, setResetStatus] = useState("");
   const [resetting, setResetting] = useState(false);
 
   useEffect(() => {
@@ -64,20 +66,20 @@ export default function AdminPanelPage() {
 
   async function handleSaveSettings(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setStatus("");
+    setSettingsStatus("");
 
     const result = await saveSettings(settings);
     if (result.ok) {
-      setStatus("Ayarlar kaydedildi.");
+      setSettingsStatus("Ayarlar kaydedildi.");
     } else {
-      setStatus("Ayarlar kaydedilemedi.");
+      setSettingsStatus("Ayarlar kaydedilemedi.");
     }
   }
 
   async function handleAddTeacher(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     console.log("ADD_TEACHER_HANDLER_TRIGGERED", newTeacher);
-    setStatus("");
+    setTeacherStatus("");
 
     const name = newTeacher.name.trim();
     const surname = newTeacher.surname.trim();
@@ -86,7 +88,7 @@ export default function AdminPanelPage() {
     if (!name || !surname || !email) {
       const error = new Error("Ad, soyad ve e-posta zorunludur.");
       console.error("ADD_TEACHER_VALIDATION_FAILED", error);
-      setStatus(`Öğretmen eklenemedi: ${error.message}`);
+      setTeacherStatus(`Öğretmen eklenemedi: ${error.message}`);
       return;
     }
 
@@ -98,18 +100,18 @@ export default function AdminPanelPage() {
 
     if (error) {
       console.error(error);
-      setStatus("Öğretmen eklenemedi.");
+      setTeacherStatus("Öğretmen eklenemedi.");
       return;
     }
 
     setTeachers((prev) => [data as Teacher, ...prev]);
     setNewTeacher({ name: "", surname: "", email: "" });
-    setStatus("Öğretmen eklendi.");
+    setTeacherStatus("Öğretmen eklendi.");
   }
 
   async function handleDeleteTeacher(id: string) {
     console.log("DELETE_TEACHER_HANDLER_TRIGGERED", { id });
-    setStatus("");
+    setTeacherStatus("");
 
     try {
       const response = await fetch(`/api/teachers?id=${encodeURIComponent(id)}`, {
@@ -120,14 +122,14 @@ export default function AdminPanelPage() {
         console.error("DELETE_TEACHER_FAILED", { status: response.status, body });
         const serverMessage =
           body?.error || body?.details || body?.hint || "Öğretmen silinemedi.";
-        setStatus(`Öğretmen silinemedi: ${serverMessage}`);
+        setTeacherStatus(`Öğretmen silinemedi: ${serverMessage}`);
         return;
       }
       setTeachers((prev) => prev.filter((teacher) => teacher.id !== id));
-      setStatus("Öğretmen silindi.");
+      setTeacherStatus("Öğretmen silindi.");
     } catch (error) {
       console.error("DELETE_TEACHER_ERROR", error);
-      setStatus(
+      setTeacherStatus(
         `Öğretmen silinemedi: ${error instanceof Error ? error.message : String(error)}`
       );
     }
@@ -141,7 +143,7 @@ export default function AdminPanelPage() {
       return;
     }
 
-    setStatus("");
+    setResetStatus("");
     setResetting(true);
     try {
       const response = await fetch("/api/reset", { method: "POST" });
@@ -150,16 +152,16 @@ export default function AdminPanelPage() {
         const message = body?.details
           ? `${body?.error ?? "Sistem sıfırlanamadı."} (${body.details})`
           : body?.error || "Sistem sıfırlanamadı.";
-        setStatus(message);
+        setResetStatus(message);
         return;
       }
 
       setTeachers([]);
       setSettings(defaultSettings);
-      setStatus("Sistem sıfırlandı.");
+      setResetStatus("Sistem sıfırlandı.");
     } catch (error) {
       console.error("RESET_SYSTEM_ERROR", error);
-      setStatus(
+      setResetStatus(
         `Sistem sıfırlanamadı: ${error instanceof Error ? error.message : String(error)}`
       );
     } finally {
@@ -217,6 +219,7 @@ export default function AdminPanelPage() {
             Ayarları Kaydet
           </button>
         </form>
+        {settingsStatus ? <p className="small">{settingsStatus}</p> : null}
       </div>
 
       <div className="card">
@@ -286,7 +289,7 @@ export default function AdminPanelPage() {
           ))}
           {teachers.length === 0 ? <p className="small">Henüz öğretmen yok.</p> : null}
         </div>
-        {status ? <p className="small">{status}</p> : null}
+        {teacherStatus ? <p className="small">{teacherStatus}</p> : null}
       </div>
 
       <div className="card">
@@ -297,6 +300,7 @@ export default function AdminPanelPage() {
         <button className="button danger" type="button" onClick={handleResetAll}>
           {resetting ? "Sıfırlanıyor..." : "Tüm Veriyi Sil"}
         </button>
+        {resetStatus ? <p className="small">{resetStatus}</p> : null}
       </div>
     </div>
   );

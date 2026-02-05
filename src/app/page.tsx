@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { getSettings } from "@/lib/settings";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const settings = await getSettings();
   const schoolTitle = settings.schoolName
