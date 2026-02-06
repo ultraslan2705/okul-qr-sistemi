@@ -124,6 +124,9 @@ export default function FormPage() {
         <Link className="button secondary" href="/student">
           Geri Dön
         </Link>
+        <Link className="button secondary" href="/">
+          Ana Sayfa
+        </Link>
       </div>
 
       <div className="card">
