@@ -21,6 +21,10 @@ type FormState = {
 const classPattern = /^(?:[1-9]|1[0-2])(?:[\s-])?[A-Za-zÇĞİÖŞÜçğıöşü]$/;
 const phonePattern = /^05\d{9}$/;
 
+function toUpperTr(value: string) {
+  return value.toLocaleUpperCase("tr-TR");
+}
+
 function formatPhoneInput(value: string) {
   const digits = value.replace(/\D/g, "").slice(0, 11);
   const groups = [4, 3, 2, 2];
@@ -91,7 +95,8 @@ export default function FormPage() {
       return;
     }
 
-    const trimmedClass = form.studentClass.trim();
+    const normalizedStudentName = toUpperTr(form.studentName.trim());
+    const trimmedClass = toUpperTr(form.studentClass.trim());
     if (trimmedClass && !classPattern.test(trimmedClass)) {
       setStatus("Sınıf formatı hatalı. Örn: 10-A");
       return;
@@ -110,7 +115,7 @@ export default function FormPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           teacherId: teacher.id,
-          studentName: form.studentName.trim(),
+          studentName: normalizedStudentName,
           studentClass: trimmedClass,
           studentPhone: normalizedPhone,
           message: form.message.trim()
@@ -164,7 +169,10 @@ export default function FormPage() {
               className="input"
               value={form.studentName}
               onChange={(event) =>
-                setForm((prev) => ({ ...prev, studentName: event.target.value }))
+                setForm((prev) => ({
+                  ...prev,
+                  studentName: toUpperTr(event.target.value)
+                }))
               }
               required
             />
@@ -175,7 +183,10 @@ export default function FormPage() {
               className="input"
               value={form.studentClass}
               onChange={(event) =>
-                setForm((prev) => ({ ...prev, studentClass: event.target.value }))
+                setForm((prev) => ({
+                  ...prev,
+                  studentClass: toUpperTr(event.target.value)
+                }))
               }
               placeholder="Örn: 10-A"
               maxLength={4}

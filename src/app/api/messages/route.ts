@@ -23,8 +23,8 @@ export async function POST(request: Request) {
   }
 
   const teacherId = payload.teacherId?.trim();
-  const studentName = payload.studentName?.trim();
-  const studentClass = payload.studentClass?.trim() ?? "";
+  const studentName = payload.studentName?.trim()?.toLocaleUpperCase("tr-TR");
+  const studentClass = payload.studentClass?.trim()?.toLocaleUpperCase("tr-TR") ?? "";
   const studentPhoneRaw = payload.studentPhone?.trim() ?? "";
   const message = payload.message?.trim();
 
