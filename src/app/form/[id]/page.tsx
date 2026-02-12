@@ -21,6 +21,22 @@ type FormState = {
 const classPattern = /^(?:[1-9]|1[0-2])(?:[\s-])?[A-Za-zÇĞİÖŞÜçğıöşü]$/;
 const phonePattern = /^05\d{9}$/;
 
+function formatPhoneInput(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 11);
+  const groups = [4, 3, 2, 2];
+  const parts: string[] = [];
+  let index = 0;
+
+  for (const size of groups) {
+    const part = digits.slice(index, index + size);
+    if (!part) break;
+    parts.push(part);
+    index += size;
+  }
+
+  return { digits, formatted: parts.join(" ") };
+}
+
 const initialForm: FormState = {
   studentName: "",
   studentClass: "",
@@ -175,14 +191,12 @@ export default function FormPage() {
               onChange={(event) =>
                 setForm((prev) => ({
                   ...prev,
-                  studentPhone: event.target.value.replace(/\D/g, "").slice(0, 11)
+                  studentPhone: formatPhoneInput(event.target.value).formatted
                 }))
               }
               placeholder="05xx xxx xx xx"
               inputMode="numeric"
-              maxLength={11}
-              pattern="05\\d{9}"
-              title="05 ile başlayan 11 haneli numara"
+              autoComplete="tel"
             />
           </div>
           <div className="field">
