@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@capacitor/android": "^8.3.0",
+    "@capacitor/cli": "^8.3.0",
+    "@capacitor/core": "^8.3.0",
     "@emailjs/browser": "4.3.3",
     "@supabase/supabase-js": "^2.45.2",
     "next": "14.2.5",
